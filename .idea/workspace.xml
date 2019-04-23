@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cc6b056b-777a-4bbd-a48a-aefb60cdb0b1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/markdown-navigator.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aggregator/aggregates.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aggregator/aggregator.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aggregator/aggregator_bench_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aggregator/customFunctions.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/aggregator/structs.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-    </list>
+    <list default="true" id="cc6b056b-777a-4bbd-a48a-aefb60cdb0b1" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

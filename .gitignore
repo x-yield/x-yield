@@ -10,3 +10,10 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+/bin
+/vendor
+/vendor.pb
+.DS_STORE
+/.idea
+.o3/k8s/values_local.yaml
