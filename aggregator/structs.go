@@ -38,7 +38,7 @@ type AggregatedChunk struct {
 	ProtoCode     *AggProtoCode
 }
 
-type Quantiles struct {
+type QuantilesPack struct {
 	q50  float64
 	q75  float64
 	q80  float64
@@ -56,7 +56,7 @@ type Hist struct {
 }
 
 type AggIntervalReal struct {
-	Q     Quantiles
+	Q     QuantilesPack
 	Min   float64
 	Max   float64
 	Total float64

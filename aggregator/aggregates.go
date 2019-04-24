@@ -10,11 +10,12 @@ import (
 func NewAggIntervalReal(s series.Series, histDividers []float64) *AggIntervalReal {
 	orderedSeries := SortFloatSeries(s)
 	return &AggIntervalReal{
-		QuantilesForOrderedSeries(orderedSeries),
+		*QuantilesPackForOrderedSeries(orderedSeries),
 		s.Min(),
 		s.Max(),
 		floats.Sum(s.Float()),
 		s.Len(),
+		// TODO(netort): stat.Histogram has O(N^2), optimize search algo
 		Hist{
 			histDividers,
 			stat.Histogram(nil, histDividers, orderedSeries, nil),

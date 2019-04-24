@@ -5,8 +5,8 @@ import (
 	"github.com/kniren/gota/series"
 )
 
-func QuantilesForOrderedSeries(orderedSeries []float64) Quantiles {
-	return Quantiles{
+func QuantilesPackForOrderedSeries(orderedSeries []float64) *QuantilesPack {
+	return &QuantilesPack{
 		stat.Quantile(.50, stat.Empirical, orderedSeries, nil),
 		stat.Quantile(.75, stat.Empirical, orderedSeries, nil),
 		stat.Quantile(.80, stat.Empirical, orderedSeries, nil),
