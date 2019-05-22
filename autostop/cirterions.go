@@ -7,7 +7,12 @@ import (
 	"strings"
 )
 
-type Criterion struct {
+type Criterion interface {
+	Parse(params string) error
+	Check(second []string) bool
+}
+
+type AvgTimeCriterion struct {
 	Since             int64
 	Progress          int32
 	ThresholdDuration int32
@@ -15,33 +20,45 @@ type Criterion struct {
 	Tag               string
 }
 
-type AvgTimeCriterion struct {
-	Criterion
-}
-
 type NetCodeCriterion struct {
-	Criterion
+	Since             int64
+	Progress          int32
+	ThresholdDuration int32
+	ThresholdValue    int32
+	Tag               string
 	Codes              *regexp.Regexp
 	ThresholdValueType string // count || percent
 }
 
 type HttpCodeCriterion struct {
-	Criterion
+	Since             int64
+	Progress          int32
+	ThresholdDuration int32
+	ThresholdValue    int32
+	Tag               string
 	Codes              *regexp.Regexp
 	ThresholdValueType string // count || percent
 }
 
 type QuantileCriterion struct {
-	Criterion
+	Since             int64
+	Progress          int32
+	ThresholdDuration int32
+	ThresholdValue    int32
+	Tag               string
 	Quantile int32
 }
 
 type TimeLimitCriterion struct {
-	Criterion
+	Since             int64
+	Progress          int32
+	ThresholdDuration int32
+	ThresholdValue    int32
+	Tag               string
 }
 
 // expect something like "1s500ms, 30s" or "50,15"
-func (c *AvgTimeCriterion) Parse(params string) error {
+func (c AvgTimeCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -65,8 +82,12 @@ func (c *AvgTimeCriterion) Parse(params string) error {
 	return nil
 }
 
+func (c AvgTimeCriterion) Check(second []string) bool {
+	return false
+}
+
 // expect something like "404,10,15, sometag" or "5xx, 10%, 1m"
-func (c *NetCodeCriterion) Parse(params string) error {
+func (c NetCodeCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -123,8 +144,12 @@ func (c *NetCodeCriterion) Parse(params string) error {
 	return nil
 }
 
+func (c NetCodeCriterion) Check(second []string) bool {
+	return false
+}
+
 // expect something like "404,10,15, sometag" or "5xx, 10%, 1m"
-func (c *HttpCodeCriterion) Parse(params string) error {
+func (c HttpCodeCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -181,8 +206,12 @@ func (c *HttpCodeCriterion) Parse(params string) error {
 	return nil
 }
 
+func (c HttpCodeCriterion) Check(second []string) bool {
+	return false
+}
+
 // expect something like "95,100ms,10s"
-func (c *QuantileCriterion) Parse(params string) error {
+func (c QuantileCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -223,7 +252,11 @@ func (c *QuantileCriterion) Parse(params string) error {
 	return nil
 }
 
-func (c *TimeLimitCriterion) Parse(params string) error {
+func (c QuantileCriterion) Check(second []string) bool {
+	return false
+}
+
+func (c TimeLimitCriterion) Parse(params string) error {
 	limit, err := parseDuration(params)
 	if err != nil {
 		return err
@@ -232,3 +265,8 @@ func (c *TimeLimitCriterion) Parse(params string) error {
 
 	return nil
 }
+
+func (c TimeLimitCriterion) Check(second []string) bool {
+	return false
+}
+
