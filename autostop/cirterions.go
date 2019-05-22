@@ -2,6 +2,7 @@ package autostop
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -58,21 +59,28 @@ type TimeLimitCriterion struct {
 }
 
 // expect something like "1s500ms, 30s" or "50,15"
-func (c AvgTimeCriterion) Parse(params string) error {
+func (c *AvgTimeCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
 	}
-	if len(paramsList) != 2 {
+	if len(paramsList) < 2 || len(paramsList) > 3 {
 		return errors.New("invalid autostop format: time autostop must have 2 or 3 params")
 	}
 
 	// ThresholdValue
-	thresholdValue, err := parseMilliseconds(paramsList[2])
+	thresholdValue, err := ParseMilliseconds(paramsList[0])
 	if err != nil {
 		return err
 	}
 	c.ThresholdValue = thresholdValue
+
+	// ThresholdDuration
+	thresholdDuration, err := ParseDuration(paramsList[1])
+	if err != nil {
+		return err
+	}
+	c.ThresholdDuration = thresholdDuration
 
 	// Tag
 	if len(paramsList) == 3 {
@@ -87,7 +95,7 @@ func (c AvgTimeCriterion) Check(second []string) bool {
 }
 
 // expect something like "404,10,15, sometag" or "5xx, 10%, 1m"
-func (c NetCodeCriterion) Parse(params string) error {
+func (c *NetCodeCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -97,21 +105,21 @@ func (c NetCodeCriterion) Parse(params string) error {
 	}
 
 	// Codes
-	ok, err := regexp.Match("[0-9x]+", []byte(paramsList[0]))
+	ok, err := regexp.Match("^[0-9x]+$", []byte(paramsList[0]))
 	if err != nil {
 		return err
 	}
 	if !ok {
 		return errors.New("invalid net autostop net code format")
 	}
-	codes, err := regexp.Compile(strings.Replace(paramsList[0], "x", "[0-9]", -1))
+	codes, err := regexp.Compile(fmt.Sprintf("^%s$", strings.Replace(paramsList[0], "x", "[0-9]", -1)))
 	if err != nil {
 		return err
 	}
 	c.Codes = codes
 
 	// ThresholdValue and ThresholdValueType
-	ok, err = regexp.Match("[0-9]+%?", []byte(paramsList[1]))
+	ok, err = regexp.Match("^[0-9]+%?$", []byte(paramsList[1]))
 	if err != nil {
 		return err
 	}
@@ -130,7 +138,7 @@ func (c NetCodeCriterion) Parse(params string) error {
 	}
 
 	// ThresholdDuration
-	thresholdDuration, err := parseDuration(paramsList[2])
+	thresholdDuration, err := ParseDuration(paramsList[2])
 	if err != nil {
 		return err
 	}
@@ -149,7 +157,7 @@ func (c NetCodeCriterion) Check(second []string) bool {
 }
 
 // expect something like "404,10,15, sometag" or "5xx, 10%, 1m"
-func (c HttpCodeCriterion) Parse(params string) error {
+func (c *HttpCodeCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -159,21 +167,21 @@ func (c HttpCodeCriterion) Parse(params string) error {
 	}
 
 	// Codes
-	ok, err := regexp.Match("[0-9x]+", []byte(paramsList[0]))
+	ok, err := regexp.Match("^[0-9x]+$", []byte(paramsList[0]))
 	if err != nil {
 		return err
 	}
 	if !ok {
 		return errors.New("invalid http autostop http code format")
 	}
-	codes, err := regexp.Compile(strings.Replace(paramsList[0], "x", "[0-9]", -1))
+	codes, err := regexp.Compile(fmt.Sprintf("^%s$", strings.Replace(paramsList[0], "x", "[0-9]", -1)))
 	if err != nil {
 		return err
 	}
 	c.Codes = codes
 
 	// ThresholdValue and ThresholdValueType
-	ok, err = regexp.Match("[0-9]+%?", []byte(paramsList[1]))
+	ok, err = regexp.Match("^[0-9]+%?$", []byte(paramsList[1]))
 	if err != nil {
 		return err
 	}
@@ -192,7 +200,7 @@ func (c HttpCodeCriterion) Parse(params string) error {
 	}
 
 	// ThresholdDuration
-	thresholdDuration, err := parseDuration(paramsList[2])
+	thresholdDuration, err := ParseDuration(paramsList[2])
 	if err != nil {
 		return err
 	}
@@ -211,7 +219,7 @@ func (c HttpCodeCriterion) Check(second []string) bool {
 }
 
 // expect something like "95,100ms,10s"
-func (c QuantileCriterion) Parse(params string) error {
+func (c *QuantileCriterion) Parse(params string) error {
 	var paramsList []string
 	for _, p := range strings.Split(params, ",") {
 		paramsList = append(paramsList, strings.TrimSpace(p))
@@ -231,14 +239,14 @@ func (c QuantileCriterion) Parse(params string) error {
 	c.Quantile = int32(q)
 
 	// ThresholdValue
-	thresholdValue, err := parseMilliseconds(paramsList[2])
+	thresholdValue, err := ParseMilliseconds(paramsList[1])
 	if err != nil {
 		return err
 	}
 	c.ThresholdValue = thresholdValue
 
 	// ThresholdDuration
-	thresholdDuration, err := parseDuration(paramsList[2])
+	thresholdDuration, err := ParseDuration(paramsList[2])
 	if err != nil {
 		return err
 	}
@@ -256,8 +264,8 @@ func (c QuantileCriterion) Check(second []string) bool {
 	return false
 }
 
-func (c TimeLimitCriterion) Parse(params string) error {
-	limit, err := parseDuration(params)
+func (c *TimeLimitCriterion) Parse(params string) error {
+	limit, err := ParseDuration(strings.TrimSpace(params))
 	if err != nil {
 		return err
 	}

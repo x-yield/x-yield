@@ -13,11 +13,11 @@ func ParseCriteria(criteria []string) (cc []*Criterion, err error) {
 	for _, criterion := range criteria {
 		ok, err := regexp.Match("^[a-z]+(.+)$", []byte(criterion))
 		if err != nil {
-			return
+			break
 		}
 		if !ok {
 			err = errors.New("invalid autostop format")
-			return
+			break
 		}
 
 		params := strings.Split(criterion, "(")
@@ -27,42 +27,42 @@ func ParseCriteria(criteria []string) (cc []*Criterion, err error) {
 		switch c {
 		case "time":
 			var avgTimeCriterion Criterion
-			avgTimeCriterion = AvgTimeCriterion{}
+			avgTimeCriterion = &AvgTimeCriterion{}
 			err = avgTimeCriterion.Parse(p)
 			if err != nil {
-				return
+				break
 			}
 			cc = append(cc, &avgTimeCriterion)
 		case "net":
 			var netCodeCriterion Criterion
-			netCodeCriterion = NetCodeCriterion{}
+			netCodeCriterion = &NetCodeCriterion{}
 			err = netCodeCriterion.Parse(p)
 			if err != nil {
-				return
+				break
 			}
 			cc = append(cc, &netCodeCriterion)
 		case "http":
 			var httpCodeCriterion Criterion
-			httpCodeCriterion = HttpCodeCriterion{}
+			httpCodeCriterion = &HttpCodeCriterion{}
 			err = httpCodeCriterion.Parse(p)
 			if err != nil {
-				return
+				break
 			}
 			cc = append(cc, &httpCodeCriterion)
 		case "quantile":
 			var quantileCriterion Criterion
-			quantileCriterion = QuantileCriterion{}
+			quantileCriterion = &QuantileCriterion{}
 			err = quantileCriterion.Parse(p)
 			if err != nil {
-				return
+				break
 			}
 			cc = append(cc, &quantileCriterion)
 		case "limit":
 			var timeLimitCriterion Criterion
-			timeLimitCriterion = TimeLimitCriterion{}
+			timeLimitCriterion = &TimeLimitCriterion{}
 			err = timeLimitCriterion.Parse(p)
 			if err != nil {
-				return
+				break
 			}
 			cc = append(cc, &timeLimitCriterion)
 		default:
