@@ -16,4 +16,6 @@
 /vendor.pb
 .DS_STORE
 /.idea
-.o3/k8s/values_local.yaml
+
+.idea/*
+
